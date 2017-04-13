@@ -1,0 +1,39 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Barbie Party</title>
+  <link rel="stylesheet" type="text/css" href="/assets/salesforce-ux/design-system/styles/salesforce-lightning-design-system.min.css"></link>
+  <script src="/assets/vue/vue.js"></script>
+  <script src="/assets/vue-resource/vue-resource.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <form v-on:submit="createContact">
+      <input placeholder="First Name" v-model="contact.firstname">
+      <input placeholder="Last Name" v-model="contact.lastname">
+      <button type="submit">Create Contact</button>
+    </form>
+    {{sfid}}
+  </div>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        sfid: null,
+        contact: {}
+      },
+      methods: {
+        createContact: function(event) {
+          event.preventDefault();
+          this.$http.post('/contact', this.$data.contact)
+            .then(function(response) {
+              this.$data.sfid = response.body.sfid;
+            });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
