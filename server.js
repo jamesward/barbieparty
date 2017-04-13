@@ -4,11 +4,12 @@ const PgAsync = require('pg-async').default;
 const send = require('koa-send');
 const mount = require('koa-mount');
 const body = require('koa-json-body');
+const uuidV4 = require('uuid/v4');
 
 const app = new Koa();
 
 const pgAsync = process.env.DATABASE_URL !== undefined
-  ? new PgAsync(process.env.DATABASE_URL)
+  ? new PgAsync(process.env.DATABASE_URL + "?ssl=true")
   : new PgAsync('postgres://localhost:5432/barbieparty');
 
 const router = new Router();
@@ -18,12 +19,21 @@ router.get('/', async ctx => {
 });
 
 router.get('/contact', async ctx => {
-  ctx.body = (await pgAsync.query(`SELECT * FROM salesforce.Contact`)).rows;
+  ctx.body = (await pgAsync.rows(`SELECT * FROM salesforce.Contact`));
 });
 
 router.post('/contact', async ctx => {
-  const sql = `INSERT INTO salesforce.Contact (firstname, lastname) VALUES ($1, $2) RETURNING sfid`;
-  ctx.body = {sfid: (await pgAsync.value(sql, ctx.request.body.firstname, ctx.request.body.lastname))};
+  const sql = `INSERT INTO salesforce.Contact
+    (firstname, lastname, email, team__c, participant_type__c, session_id__c)
+    VALUES ($1, $2, $3, $4, 'Party Guest', $5)
+    RETURNING session_id__c`;
+  ctx.body = {session_id: (await pgAsync.value(
+    sql,
+    ctx.request.body.firstname,
+    ctx.request.body.lastname,
+    ctx.request.body.email,
+    ctx.request.body.team,
+    uuidV4()))};
 });
 
 app.use(mount('/assets/salesforce-ux/design-system', async ctx => {

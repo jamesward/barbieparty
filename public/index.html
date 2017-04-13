@@ -10,18 +10,61 @@
 </head>
 <body>
   <div id="app">
-    <form v-on:submit="createContact">
-      <input placeholder="First Name" v-model="contact.firstname">
-      <input placeholder="Last Name" v-model="contact.lastname">
-      <button type="submit">Create Contact</button>
-    </form>
-    {{sfid}}
+    <div v-if="session_id">
+      Hello, {{contact.firstname}}
+    </div>
+    <article v-else class="slds-card slds-card--narrow" style="max-width: 360px; padding: 10px; margin-left: auto; margin-right: auto; margin-top: 20px;">
+      <div class="slds-card__body">
+        <form v-on:submit="createContact" class="slds-form--stacked">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="firstname">First Name</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="firstname" class="slds-input" v-model="contact.firstname" required/>
+            </div>
+          </div>
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="lastname">Last Name</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="lastname" class="slds-input" v-model="contact.lastname" required/>
+            </div>
+          </div>
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="email">Email</label>
+            <div class="slds-form-element__control">
+              <input type="email" id="email" class="slds-input" v-model="contact.email" required/>
+            </div>
+          </div>
+          <fieldset class="slds-form-element">
+            <legend class="slds-form-element__legend slds-form-element__label">Team</legend>
+            <div class="slds-form-element__control">
+              <span class="slds-radio">
+                <input type="radio" id="team-green" value="Green" v-model="contact.team"/>
+                <label class="slds-radio__label" for="team-green">
+                  <span class="slds-radio--faux"></span>
+                  <span class="slds-form-element__label">Green</span>
+                </label>
+              </span>
+              <span class="slds-radio">
+                <input type="radio" id="team-red" value="Red" v-model="contact.team"/>
+                <label class="slds-radio__label" for="team-red">
+                  <span class="slds-radio--faux"></span>
+                  <span class="slds-form-element__label">Red</span>
+                </label>
+              </span>
+            </div>
+          </fieldset>
+          <div class="slds-form-element">
+            <button type="submit" class="slds-button slds-button--brand">Create Contact</button>
+          </div>
+        </form>
+      </div>
+    </article>
   </div>
   <script>
     var app = new Vue({
       el: '#app',
       data: {
-        sfid: null,
+        session_id: null,
         contact: {}
       },
       methods: {
@@ -29,7 +72,7 @@
           event.preventDefault();
           this.$http.post('/contact', this.$data.contact)
             .then(function(response) {
-              this.$data.sfid = response.body.sfid;
+              this.$data.session_id = response.body.session_id;
             });
         }
       }
